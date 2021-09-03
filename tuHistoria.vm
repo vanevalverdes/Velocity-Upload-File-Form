@@ -1,0 +1,105 @@
+$document.surround("/surround.vm")
+<link rel="stylesheet" href="/pozuelo/dropzone-5.7.0/dist/dropzone.css">
+
+
+#if($request.get("step")) #set($step = $request.get("step")) #end
+#if(!$step)
+	#set($step = 0)
+#end
+
+<main class="bg-primary pt-5">
+	<div class="container ">
+		<div class="row pt-5 pb-3">
+			<div class="col d-flex justify-content-center pt-3 pt-lg-0">
+				<div>
+					<img class="img-fluid" src="/pozuelo/templates/img/tuHistoria/Titulo.png">
+					
+				</div>
+			</div>
+		</div>
+		#if($step == 0)
+
+		<div class="row d-flex align-items-top">
+			<form method="get" class="" style="width: 100%;">
+			<div class="col-12 col-lg-5">
+				<div>
+						<div class="form-group">
+						<label for="formGroupExampleInput" class="yellow-text">Frase:</label>
+						<input type="text" class="form-control border-0 rounded-0" id="formGroupExampleInput" name="phrase" placeholder="Una frase que resuma tu inspiración..." required="required">
+						</div>
+						<div class="form-group">
+						<label for="formGroupExampleInput" class="yellow-text">Apellido(s) de tu familia:</label>
+						<input type="text" class="form-control border-0 rounded-0" id="formGroupExampleInput" name="lastnames" placeholder="Los apellidos de tu familia..." required="required">
+						</div>						
+						<div class="form-group">
+						<label for="formGroupExampleInput" class="yellow-text">Correo electrónico (para contactarte):</label>
+						<input type="email" class="form-control border-0 rounded-0" id="formGroupExampleInput" name="email" placeholder="Un correo electrónico válido..." required="required">
+						</div>	
+		
+				</div>
+			</div>
+			<div class="col-12 col-lg-7 pt-4 pt-lg-0">
+						<div class="form-group">
+						<label for="exampleFormControlTextarea1" class="yellow-text">Historia:</label>
+						<textarea class="form-control border-0 rounded-0" id="exampleFormControlTextarea1" name="story" rows="8" placeholder="Contanos la historia de tu familia..." required="required"></textarea>
+						</div>
+						<input type="hidden" value="1" name="step">
+					<div class="row" style="padding-right:15px; padding-left:15px;">
+
+						<button class="col btn rounded-0 bg-pozuelo color-primary d-flex justify-content-center align-items-center mr-1">
+								Continuar >>>
+						</button>
+				
+
+					</div>
+			</div>
+			</form>
+		</div>
+
+		#elseif($step == 1)
+		<div class="row d-flex align-items-top">
+		<div class="col-12 col-lg-5 pt-4 pt-lg-0 dropzone-previews">
+			<form method="post" enctype="multipart/form-data" action="/engine?service=session&cmd=uploadsubmit&succeeded=/pozuelo/templates/tuHistoria.vm?step=2" class="dropzone" id="my-dropzone">
+			  <div class="fallback">
+			    <input name="file" type="file" multiple />
+			  </div>
+			</form>
+		</div>
+		<div class="col-12 col-lg-5 pt-4 pt-lg-0">
+
+			<form id="continue" style="display: none;">
+				<div class="form-check p-4 text-light">
+				  <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked name="acceptance">
+				  <input type="hidden" value="$request.get('phrase')" name="phrase">
+				  <input type="hidden" value="$request.get('lastnames')" name="lastnames">
+				  <input type="hidden" value="$request.get('email')" name="email">
+				  <input type="hidden" value="$request.get('story')" name="story">
+				  <input type="hidden" value="2" name="step">
+				  
+				  <label class="form-check-label" for="flexCheckChecked" >
+				    Estoy de acuerdo con los términos y condiciones.
+				  </label>
+				</div>
+						<a href="$request" class="col btn rounded-0 bg-pozuelo color-primary d-flex justify-content-center align-items-center mr-1 mb-2">Subir Foto Nuevamente</a>
+								
+								
+						<button class="col btn rounded-0 bg-pozuelo color-primary d-flex justify-content-center align-items-center mr-1">
+								Continuar >>>
+						</button>
+			</form>
+		</div>
+		</div>	
+		
+		#elseif($step == 2)
+		#set($newstory = $session.newRecord("Story"))
+		$newstory.putVoid("Phrase", $request.get("phrase"))
+		$newstory.putVoid("Last Name", $request.get('lastnames'))
+		$newstory.putVoid("Email", $request.get('email'))
+		$newstory.putVoid("Story", $request.get('story'))
+		$newstory.putVoid("Image", $session.getLastUploadedBlob())
+		#set($save = $newstory.save())
+		<h3 style="color: #fff500; margin-bottom: 20px;">¡Gracias por contarnos tu historia y ayudarnos a inspirar a otras familias! </h3>
+	##	<img src="$newstory.getBlobUrl('Image')" class="img-fluid">	
+		#end
+		
+</main>
